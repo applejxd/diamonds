@@ -1,9 +1,9 @@
-from logging import getLogger, Formatter, StreamHandler, FileHandler, DEBUG
+from logging import Logger, getLogger, Formatter, StreamHandler, FileHandler, DEBUG
 import dask.dataframe as dd
 import pandas as pd
 
 
-def make_logger(name: str):
+def make_logger(name: str) -> Logger:
     logger_ins = getLogger(name)
     logger_ins.setLevel(DEBUG)
     logger_ins.propagate = False
