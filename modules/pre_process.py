@@ -1,9 +1,10 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from modules.self_logger import SelfLogger
 import util
 from typing import List
 
-logger = util.make_logger(__name__)
+logger = SelfLogger.make_logger(__name__)
 
 
 def categorical_encoder(table: pd.DataFrame, cat_cols: List[str]) -> pd.DataFrame:
