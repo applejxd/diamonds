@@ -6,7 +6,7 @@ from datetime import datetime
 
 class SelfLogger:
     _main_logger = None
-    formatter = Formatter("%(asctime)s-%(levelname)s-%(message)s")
+    formatter = Formatter("%(asctime)s - %(levelname)s - %(filename)s - %(message)s")
 
     def __new__(cls):
         raise NotImplementedError("Cannot initialize via Constructor")
