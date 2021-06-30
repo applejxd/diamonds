@@ -4,7 +4,7 @@ from modules.self_logger import SelfLogger
 import util
 
 # singleton
-logger = SelfLogger.make_logger(__name__)
+logger = SelfLogger.get_logger(__name__)
 
 
 def plot_carat(table: pd.DataFrame):
