@@ -1,3 +1,4 @@
+import os
 from logging import Logger, getLogger, DEBUG, Formatter, StreamHandler, FileHandler
 from datetime import datetime
 
@@ -11,7 +12,7 @@ class SelfLogger:
     def get_file_handler(cls):
         if not cls.log_file_name:
             cls.log_file_name = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        file_handler = FileHandler(f"../logs/{cls.log_file_name}.log")
+        file_handler = FileHandler(f"{os.path.dirname(__file__)}/../logs/{cls.log_file_name}.log")
         file_handler.setLevel(DEBUG)
         file_handler.setFormatter(cls.formatter)
         return file_handler
