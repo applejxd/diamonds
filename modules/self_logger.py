@@ -5,16 +5,10 @@ from datetime import datetime
 
 
 class SelfLogger:
-    """
-    シングルトンパターン
-    """
-    # シングルトンパターン
-    _unique_instance = None
-    formatter = Formatter("%(asctime)s - %(levelname)s - %(filename)s - %(message)s")
-    main_logger = None
+    _main_logger = None
+    formatter = Formatter("%(asctime)s-%(levelname)s-%(message)s")
 
     def __new__(cls):
-        # シングルトンパターン
         raise NotImplementedError("Cannot initialize via Constructor")
 
     @classmethod
@@ -25,13 +19,6 @@ class SelfLogger:
         """
         # オーバーライド前の new を呼ぶ
         return super().__new__(cls)
-
-    @classmethod
-    def get_inst(cls):
-        # シングルトンパターン
-        if not cls._unique_instance:
-            cls._unique_instance = cls.__internal_new__()
-        return cls._unique_instance
 
     @classmethod
     def _get_file_handler(cls, name: str):
@@ -64,8 +51,8 @@ class SelfLogger:
     @classmethod
     def get_logger(cls, file_path: str) -> Logger:
         file_name = os.path.splitext(os.path.basename(file_path))[0]
-        if cls.main_logger is None:
-            cls.main_logger = cls._get_main_logger(file_name)
-            return cls.main_logger
+        if not cls._main_logger:
+            cls._main_logger = cls._get_main_logger(file_name)
+            return cls._main_logger
         else:
-            return cls.main_logger.getChild(file_name)
+            return cls._main_logger.getChild(file_name)
