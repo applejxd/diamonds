@@ -8,8 +8,7 @@ import os
 
 class PreProcess:
     def __init__(self):
-        file_name = os.path.splitext(os.path.basename(__file__))[0]
-        self.logger = SelfLogger.get_inst().get_logger(file_name)
+        self.logger = SelfLogger.get_inst().get_logger(__file__)
 
     def categorical_encoder(self, table: pd.DataFrame, cat_cols: List[str]) -> pd.DataFrame:
         """

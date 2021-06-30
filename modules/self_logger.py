@@ -62,9 +62,10 @@ class SelfLogger:
         return logger_ins
 
     @classmethod
-    def get_logger(cls, name: str) -> Logger:
+    def get_logger(cls, file_path: str) -> Logger:
+        file_name = os.path.splitext(os.path.basename(file_path))[0]
         if cls.main_logger is None:
-            cls.main_logger = cls._get_main_logger(name)
+            cls.main_logger = cls._get_main_logger(file_name)
             return cls.main_logger
         else:
-            return cls.main_logger.getChild(name)
+            return cls.main_logger.getChild(file_name)
