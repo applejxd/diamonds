@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from modules.self_logger import SelfLogger
-import util
+from util import Util
 from typing import List
 import os
 
@@ -26,7 +26,7 @@ class PreProcess:
 
     def pre_process(self):
         cat_cols = ["cut", "color", "clarity"]
-        table = util.read_csv("../data/diamonds.csv")
+        table = Util.read_csv("../data/diamonds.csv")
         table = self.categorical_encoder(table, cat_cols)
         print(table)
 
