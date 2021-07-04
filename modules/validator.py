@@ -7,17 +7,17 @@ from modules.self_logger import SelfLogger
 
 class CrossValidator:
     def __init__(self, n_fold=4):
-        self.logger = SelfLogger.get_logger(__file__)
-        self.logger.info("Execute cross validation.")
+        self._logger = SelfLogger.get_logger(__file__)
+        self._logger.info("Execute cross validation.")
 
         # 分割数
-        self.n_fold = n_fold
-        self.logger.debug(f"split number = {n_fold}")
+        self._n_fold = n_fold
+        self._logger.debug(f"split number = {n_fold}")
 
         # KFoldクラスを用いてクロスバリデーションの分割を行う
         seed = 42
-        self.kf = KFold(n_splits=self.n_fold, shuffle=True, random_state=seed)
-        self.logger.debug(f"Seed of KFold = {seed}")
+        self._kf = KFold(n_splits=self._n_fold, shuffle=True, random_state=seed)
+        self._logger.debug(f"Seed of KFold = {seed}")
 
     def validate(self, train_x: pd.DataFrame, train_y: pd.Series, model):
         """
@@ -29,7 +29,7 @@ class CrossValidator:
         :return: 評価値
         """
         scores = []
-        for tr_idx, va_idx in self.kf.split(train_x):
+        for tr_idx, va_idx in self._kf.split(train_x):
             tr_x, va_x = train_x.iloc[tr_idx], train_x.iloc[va_idx]
             tr_y, va_y = train_y.iloc[tr_idx], train_y.iloc[va_idx]
 
@@ -40,5 +40,6 @@ class CrossValidator:
             scores.append(score)
 
         # 各foldのスコアの平均をとる
-        self.logger.debug(f"MAE of the cross validation = {np.mean(scores)}")
-        return np.mean(scores)
+        result = np.mean(scores)
+        self._logger.debug(f"MAE of the cross validation = {result}")
+        return result
