@@ -4,13 +4,22 @@ import lightgbm as lgb
 import pandas as pd
 import numpy as np
 from typing import Dict
+from hyperopt import hp
 
 
 class LightGbmModel(ModelIF, ABC):
     def __init__(self):
         super().__init__()
+        self._params = {'objective': 'regression', 'metrics': 'mae'}
+        self._space = {
+            'num_leaves': 50 + 10 * hp.randint('num_leaves', 16),
+            'min_data_in_leaf': 5 + 2 * hp.randint('min_data_in_leaf', 11),
+            'colsample_bytree': hp.uniform('colsample_bytree', 0.5, 1.0),
+            'learning_rate': hp.uniform('learning_rate', 0.03, 0.2),
+            'subsample': hp.uniform('subsamplre', 0.5, 1.0)
+        }
 
-    def fit(self, params: Dict, tr_x: pd.DataFrame, tr_y: pd.Series,
+    def fit(self, tr_x: pd.DataFrame, tr_y: pd.Series,
             va_x: pd.DataFrame = None, va_y: pd.Series = None) -> None:
         # 特徴量と目的変数を lightgbm のデータ構造に変換する
         lgb_train = lgb.Dataset(tr_x, tr_y)
@@ -22,7 +31,7 @@ class LightGbmModel(ModelIF, ABC):
         num_round = 100
         self._logger.debug(f"num_round = {num_round}")
         try:
-            self._model = lgb.train(params, lgb_train, num_boost_round=num_round,
+            self._model = lgb.train(self._params, lgb_train, num_boost_round=num_round,
                                     valid_names=['train', 'valid'],
                                     valid_sets=[lgb_train, lgb_eval])
         except Exception as e:

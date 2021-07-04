@@ -13,7 +13,7 @@ class SelfLogger:
 
     @classmethod
     def _get_file_handler(cls, name: str):
-        log_file_name = name + "_" + datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file_name = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + name
         file_handler = FileHandler(f"{os.path.dirname(__file__)}/../logs/{log_file_name}.log")
         file_handler.setLevel(DEBUG)
         file_handler.setFormatter(cls.formatter)

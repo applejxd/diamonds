@@ -7,7 +7,7 @@ from typing import Dict
 
 
 class CrossValidator:
-    def __init__(self, train_x: pd.DataFrame, train_y: pd.DataFrame, n_fold=4):
+    def __init__(self, train_x: pd.DataFrame, train_y: pd.Series, n_fold=4):
         self._logger = SelfLogger.get_logger(__file__)
         self._logger.info("Execute cross validation.")
 
@@ -34,21 +34,19 @@ class CrossValidator:
             self._va_x_list.append(va_x)
             self._va_y_list.append(va_y)
 
-    def validate(self, model, params):
+    def validate(self, model):
         """
         クロスバリデーション
 
         :param model: 機械学習モデル（ダックタイピング）
         :param params: ハイパーパラメータ
-        :param train_x: 説明変数
-        :param train_y: 目的変数
         :return: 評価値
         """
         scores = []
         for tr_x, tr_y, va_x, va_y \
                 in zip(self._tr_x_list, self._tr_y_list, self._va_x_list, self._va_y_list):
             # 学習の実行、バリデーションデータの予測値の出力、スコアの計算を行う
-            model.fit(params, tr_x, tr_y, va_x, va_y)
+            model.fit(tr_x, tr_y, va_x, va_y)
             va_pred = model.predict(va_x)
             score = mean_absolute_error(va_y, va_pred)
             scores.append(score)
