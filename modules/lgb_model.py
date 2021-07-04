@@ -3,23 +3,18 @@ from modules.model_if import ModelIF
 import lightgbm as lgb
 import pandas as pd
 import numpy as np
+from typing import Dict
 
 
 class LightGbmModel(ModelIF, ABC):
     def __init__(self):
         super().__init__()
 
-    def fit(self, tr_x: pd.DataFrame, tr_y: pd.Series,
+    def fit(self, params: Dict, tr_x: pd.DataFrame, tr_y: pd.Series,
             va_x: pd.DataFrame = None, va_y: pd.Series = None) -> None:
         # 特徴量と目的変数を lightgbm のデータ構造に変換する
         lgb_train = lgb.Dataset(tr_x, tr_y)
         lgb_eval = lgb.Dataset(va_x, va_y)
-
-        # ハイパーパラメータの設定
-        # 回帰タスク, MAE を指標に最適化. 再現性のために seed を指定.
-        params = {'objective': 'regression', 'metrics': 'mae',
-                  'seed': 71, 'verbose': 0}
-        self._logger.debug(f"param = {params}")
 
         # 学習の実行
         # カテゴリ変数をパラメータで指定

@@ -8,8 +8,10 @@ def main():
     train_y = process_ins.train_y
 
     model = lgb_model.LightGbmModel()
-    validator_ins = validator.CrossValidator(4)
-    validator_ins.validate(train_x, train_y, model)
+    params = {'objective': 'regression', 'metrics': 'mae',
+              'seed': 71, 'verbose': 0}
+    validator_ins = validator.CrossValidator(train_x, train_y, 4)
+    validator_ins.validate(model, params)
 
 
 if __name__ == "__main__":
