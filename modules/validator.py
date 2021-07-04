@@ -34,7 +34,7 @@ class CrossValidator:
             self._va_x_list.append(va_x)
             self._va_y_list.append(va_y)
 
-    def validate(self, model, params: Dict = None):
+    def validate(self, model, params):
         """
         クロスバリデーション
 
