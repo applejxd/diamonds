@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from modules.self_logger import SelfLogger
-from util import Util
+from modules.util import Util
 from typing import List
 
 
@@ -12,6 +12,7 @@ class PreProcess:
         # 読み込み
         table = Util.read_csv(file_path)
         self._train_x = table.drop(target_col, axis=1)
+        self._train_x = self._train_x.drop(self._train_x.columns[[0]], axis=1)
         self._train_y = table[target_col]
 
         # 前処理
@@ -38,5 +39,11 @@ class PreProcess:
         self._logger.info("Categorical variables converted.")
 
 
+def main():
+    process_ins = PreProcess("../data/diamonds.csv", "price", ["cut", "color", "clarity"])
+    print(process_ins.train_x)
+    print(process_ins.train_y)
+
+
 if __name__ == "__main__":
-    PreProcess("../data/diamonds.csv", "price", ["cut", "color", "clarity"])
+    main()

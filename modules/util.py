@@ -1,6 +1,7 @@
 import dask.dataframe as dd
 import pandas as pd
 from modules.self_logger import SelfLogger
+import pickle
 
 
 class Util:
@@ -22,12 +23,15 @@ class Util:
         return table
 
     @classmethod
-    def read_pickle(cls,file_name: str) -> pd.DataFrame:
-        table = pd.read_pickle(file_name)
-        cls._get_logger().info("Dataframe read from a pickle.")
-        return table
+    def read_pickle(cls, file_name: str) -> pd.DataFrame:
+        result = pd.read_pickle(file_name)
+        with open(f"./result/{file_name}.pkl", "rb") as f:
+            result = pickle.load(f)
+        cls._get_logger().info("Data read from a pickle.")
+        return result
 
     @classmethod
-    def write_pickle(cls,df: pd.DataFrame, file_name: str) -> None:
-        df.to_pickle(f"./result/{file_name}")
-        cls._get_logger().info("Dataframe saved as a pickle.")
+    def write_pickle(cls, data, file_name: str) -> None:
+        with open(f"./result/{file_name}.pkl", "wb") as f:
+            pickle.dump(data, f)
+        cls._get_logger().info("Data saved as a pickle.")

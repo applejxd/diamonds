@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold
-from sklearn.metrics import log_loss
+from sklearn.metrics import log_loss, mean_absolute_error
 from modules.self_logger import SelfLogger
 
 
@@ -36,7 +36,7 @@ class CrossValidator:
             # 学習の実行、バリデーションデータの予測値の出力、スコアの計算を行う
             model.fit(tr_x, tr_y, va_x, va_y)
             va_pred = model.predict(va_x)
-            score = log_loss(va_y, va_pred)
+            score = mean_absolute_error(va_y, va_pred)
             scores.append(score)
 
         # 各foldのスコアの平均をとる
