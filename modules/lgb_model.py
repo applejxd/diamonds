@@ -32,6 +32,12 @@ class LightGbmModel(ModelIF, ABC):
                                     valid_sets=[lgb_train, lgb_eval])
         except Exception as e:
             self._logger.error(f"Error occurred at learning: {e}")
+
+        # 特徴量の重要度表示
+        importance = pd.DataFrame(self._model.feature_importance(), index=tr_x.columns,
+                                  columns=["importance"])
+        self._logger.debug(f"feature importance = {importance}")
+
         self.save_model()
 
     def predict(self, te_x: pd.DataFrame) -> np.ndarray:
