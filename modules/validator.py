@@ -53,5 +53,5 @@ class CrossValidator:
 
         # 各foldのスコアの平均をとる
         result = np.mean(scores)
-        self._logger.debug(f"MAE of the cross validation = {result}")
+        # self._logger.debug(f"MAE of the cross validation = {result}")
         return result

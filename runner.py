@@ -21,6 +21,7 @@ def runner():
 
     best = fmin(eval_func, space=model.space,
                 algo=tpe.suggest, max_evals=200)
+    model.save_model()
     print(best)
 
 

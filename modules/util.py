@@ -24,7 +24,6 @@ class Util:
 
     @classmethod
     def read_pickle(cls, file_name: str) -> pd.DataFrame:
-        result = pd.read_pickle(file_name)
         with open(f"./result/{file_name}.pkl", "rb") as f:
             result = pickle.load(f)
         cls._get_logger().info("Data read from a pickle.")
