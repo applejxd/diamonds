@@ -40,6 +40,10 @@ class ModelIF(ABC):
     def predict(self, te_x: pd.DataFrame) -> np.ndarray:
         pass
 
+    @abstractmethod
+    def tuning(self, train_x, train_y):
+        pass
+
     def save_model(self):
         Util.write_pickle(self._model, f"{__class__.__name__}.pkl")
 

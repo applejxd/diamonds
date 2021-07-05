@@ -13,18 +13,7 @@ def runner():
     train_y = process_ins.train_y
 
     model = lgb_model.LightGbmModel()
-    validator_ins = validator.CrossValidator(train_x, train_y, 4)
-
-    def eval_func(params):
-        model.params = params
-        score = validator_ins.validate(model)
-        return score
-
-    best = fmin(eval_func, space=model.space,
-                algo=tpe.suggest, max_evals=200)
-    model.save_model()
-    logger.debug(best)
-    logger.debug(model.importance)
+    model.tuning(train_x, train_y)
 
 
 if __name__ == "__main__":

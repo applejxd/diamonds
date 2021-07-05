@@ -3,8 +3,8 @@ from modules.model_if import ModelIF
 import lightgbm as lgb
 import pandas as pd
 import numpy as np
-from typing import Dict
-from hyperopt import hp
+from modules import validator
+from hyperopt import fmin, hp, tpe
 
 
 class LightGbmModel(ModelIF, ABC):
@@ -44,3 +44,17 @@ class LightGbmModel(ModelIF, ABC):
     def predict(self, te_x: pd.DataFrame) -> np.ndarray:
         pred = self._model.predict(te_x)
         return pred
+
+    def tuning(self, train_x, train_y):
+        validator_ins = validator.CrossValidator(train_x, train_y, 4)
+
+        def eval_func(params):
+            self.params = params
+            score = validator_ins.validate(self)
+            return score
+
+        best = fmin(eval_func, space=self.space,
+                    algo=tpe.suggest, max_evals=200)
+        self.save_model()
+        self._logger.debug(best)
+        self._logger.debug(self.importance)

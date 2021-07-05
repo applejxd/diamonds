@@ -3,7 +3,6 @@ import pandas as pd
 from sklearn.model_selection import KFold
 from sklearn.metrics import mean_absolute_error
 from modules.self_logger import SelfLogger
-from typing import Dict
 
 
 class CrossValidator:
