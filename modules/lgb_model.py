@@ -12,15 +12,17 @@ class LightGbmModel(ModelIF, ABC):
         super().__init__()
         # 学習タスクの定義・パラメータ調整用に学習率は高く設定
         self._params = {'objective': 'regression_l1', 'metrics': 'mae',
-                        'learning_rate': 0.1}
+                        'force_col_wise': 'true', 'learning_rate': 0.1,
+                        'num_leaves': 19}
         self._space = {
-            'num_leaves': 50 + 10 * hp.randint('num_leaves', 16),
+            # 'num_leaves': 10 + 10 * hp.randint('num_leaves', 37),
             'min_data_in_leaf': 5 + 2 * hp.randint('min_data_in_leaf', 11),
-            'max_depth': 3 + hp.randint('max_depth', 6),
+            # 'max_depth': 3 + hp.randint('max_depth', 6),
         }
+        self.importance = None
 
     def fit(self, tr_x: pd.DataFrame, tr_y: pd.Series,
-            va_x: pd.DataFrame = None, va_y: pd.Series = None) -> None:
+            va_x: pd.DataFrame = None, va_y: pd.Series = None):
         # 特徴量と目的変数を lightgbm のデータ構造に変換する
         lgb_train = lgb.Dataset(tr_x, tr_y)
         lgb_eval = lgb.Dataset(va_x, va_y)
@@ -37,7 +39,7 @@ class LightGbmModel(ModelIF, ABC):
         # 特徴量の重要度表示
         importance = pd.DataFrame(self._model.feature_importance(), index=tr_x.columns,
                                   columns=["importance"])
-        # self._logger.debug(f"feature importance = {importance}")
+        self.importance = importance
 
     def predict(self, te_x: pd.DataFrame) -> np.ndarray:
         pred = self._model.predict(te_x)

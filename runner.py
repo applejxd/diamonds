@@ -4,7 +4,8 @@ from modules.self_logger import SelfLogger
 
 
 def runner():
-    SelfLogger.get_logger(__file__).info("Use task runner.")
+    logger = SelfLogger.get_logger(__file__)
+    logger.info("Use task runner.")
 
     cat_cols = ["cut", "color", "clarity"]
     process_ins = pre_process.PreProcess("./data/diamonds.csv", "price", cat_cols)
@@ -22,7 +23,8 @@ def runner():
     best = fmin(eval_func, space=model.space,
                 algo=tpe.suggest, max_evals=200)
     model.save_model()
-    print(best)
+    logger.debug(best)
+    logger.debug(model.importance)
 
 
 if __name__ == "__main__":

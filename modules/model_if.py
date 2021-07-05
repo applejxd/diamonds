@@ -33,7 +33,7 @@ class ModelIF(ABC):
 
     @abstractmethod
     def fit(self, tr_x: pd.DataFrame, tr_y: pd.Series,
-            va_x: pd.DataFrame = None, va_y: pd.Series = None) -> None:
+            va_x: pd.DataFrame = None, va_y: pd.Series = None):
         pass
 
     @abstractmethod
