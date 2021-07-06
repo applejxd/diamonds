@@ -1,4 +1,6 @@
 from abc import ABC
+from typing import Dict
+
 from modules.model_if import ModelIF
 import lightgbm as lgb
 import pandas as pd
@@ -13,13 +15,13 @@ class LightGbmModel(ModelIF, ABC):
         # 学習タスクの定義・パラメータ調整用に学習率は高く設定
         self._params = {'objective': 'regression_l1', 'metrics': 'mae',
                         'force_col_wise': 'true', 'learning_rate': 0.1,
-                        'num_leaves': 19}
+                        'num_leaves': 19, 'min_data_in_leaf': 9}
         self._space = {
             # 'num_leaves': 10 + 10 * hp.randint('num_leaves', 37),
-            'min_data_in_leaf': 5 + 2 * hp.randint('min_data_in_leaf', 11),
-            # 'max_depth': 3 + hp.randint('max_depth', 6),
+            # 'min_data_in_leaf': 5 + 2 * hp.randint('min_data_in_leaf', 11),
+            'max_depth': 3 + hp.randint('max_depth', 6),
         }
-        self.importance = None
+        self._importance = pd.DataFrame(index=[])
 
     def fit(self, tr_x: pd.DataFrame, tr_y: pd.Series,
             va_x: pd.DataFrame = None, va_y: pd.Series = None):
@@ -39,22 +41,12 @@ class LightGbmModel(ModelIF, ABC):
         # 特徴量の重要度表示
         importance = pd.DataFrame(self._model.feature_importance(), index=tr_x.columns,
                                   columns=["importance"])
-        self.importance = importance
+        self._importance = importance
 
     def predict(self, te_x: pd.DataFrame) -> np.ndarray:
         pred = self._model.predict(te_x)
         return pred
 
     def tuning(self, train_x, train_y):
-        validator_ins = validator.CrossValidator(train_x, train_y, 4)
-
-        def eval_func(params):
-            self.params = params
-            score = validator_ins.validate(self)
-            return score
-
-        best = fmin(eval_func, space=self.space,
-                    algo=tpe.suggest, max_evals=200)
-        self.save_model()
-        self._logger.debug(best)
-        self._logger.debug(self.importance)
+        super().tuning(train_x, train_y)
+        self._logger.debug(self._importance)

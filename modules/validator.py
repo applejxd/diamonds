@@ -33,11 +33,11 @@ class CrossValidator:
             self._va_x_list.append(va_x)
             self._va_y_list.append(va_y)
 
-    def validate(self, model):
+    def validate(self, model_ins):
         """
         クロスバリデーション
 
-        :param model: 機械学習モデル（ダックタイピング）
+        :param model_ins: 機械学習モデル（ダックタイピング）
         :param params: ハイパーパラメータ
         :return: 評価値
         """
@@ -45,8 +45,8 @@ class CrossValidator:
         for tr_x, tr_y, va_x, va_y \
                 in zip(self._tr_x_list, self._tr_y_list, self._va_x_list, self._va_y_list):
             # 学習の実行、バリデーションデータの予測値の出力、スコアの計算を行う
-            model.fit(tr_x, tr_y, va_x, va_y)
-            va_pred = model.predict(va_x)
+            model_ins.fit(tr_x, tr_y, va_x, va_y)
+            va_pred = model_ins.predict(va_x)
             score = mean_absolute_error(va_y, va_pred)
             scores.append(score)
 
