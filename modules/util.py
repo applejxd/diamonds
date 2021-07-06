@@ -1,29 +1,36 @@
 import dask.dataframe as dd
 import pandas as pd
 from modules.self_logger import SelfLogger
-
-logger = None
-
-
-def get_logger():
-    global logger
-    if not logger:
-        logger = SelfLogger.get_logger(__file__)
-    return logger
+import pickle
 
 
-def read_csv(file_name: str) -> pd.DataFrame:
-    table = dd.read_csv(file_name).compute()
-    get_logger().info("CSV file read.")
-    return table
+class Util:
+    _logger = None
 
+    def __new__(cls):
+        raise NotImplementedError("Cannot initialize via Constructor")
 
-def read_pickle(file_name: str) -> pd.DataFrame:
-    table = pd.read_pickle(file_name)
-    get_logger().info("Dataframe read from a pickle.")
-    return table
+    @classmethod
+    def _get_logger(cls):
+        if cls._logger is None:
+            cls._logger = SelfLogger.get_logger(__file__)
+        return cls._logger
 
+    @classmethod
+    def read_csv(cls, file_name: str) -> pd.DataFrame:
+        table = dd.read_csv(file_name).compute()
+        cls._get_logger().info("CSV file read.")
+        return table
 
-def write_pickle(df: pd.DataFrame, file_name: str) -> None:
-    df.to_pickle(f"./result/{file_name}")
-    get_logger().info("Dataframe saved as a pickle.")
+    @classmethod
+    def read_pickle(cls, file_name: str) -> pd.DataFrame:
+        with open(f"./result/{file_name}.pkl", "rb") as f:
+            result = pickle.load(f)
+        cls._get_logger().info("Data read from a pickle.")
+        return result
+
+    @classmethod
+    def write_pickle(cls, data, file_name: str) -> None:
+        with open(f"./result/{file_name}.pkl", "wb") as f:
+            pickle.dump(data, f)
+        cls._get_logger().info("Data saved as a pickle.")

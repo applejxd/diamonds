@@ -12,17 +12,8 @@ class SelfLogger:
         raise NotImplementedError("Cannot initialize via Constructor")
 
     @classmethod
-    def __internal_new__(cls):
-        """
-        ユーザ定義の内部専用 new
-        :return: インスタンス
-        """
-        # オーバーライド前の new を呼ぶ
-        return super().__new__(cls)
-
-    @classmethod
     def _get_file_handler(cls, name: str):
-        log_file_name = name + "_" + datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_file_name = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + name
         file_handler = FileHandler(f"{os.path.dirname(__file__)}/../logs/{log_file_name}.log")
         file_handler.setLevel(DEBUG)
         file_handler.setFormatter(cls.formatter)

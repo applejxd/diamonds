@@ -1,10 +1,9 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from modules.self_logger import SelfLogger
-import util
+from util import Util
 
-# singleton
-logger = SelfLogger.get_logger(__name__)
+logger = SelfLogger.get_logger(__file__)
 
 
 def plot_carat(table: pd.DataFrame):
@@ -15,7 +14,7 @@ def plot_carat(table: pd.DataFrame):
 
 
 def eda():
-    table = util.read_csv("../data/diamonds.csv")
+    table = Util.read_csv("../data/diamonds.csv")
     plot_carat(table)
 
 
