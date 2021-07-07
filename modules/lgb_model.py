@@ -17,9 +17,9 @@ class LightGbmModel(ModelIF, ABC):
                         'force_col_wise': 'true', 'learning_rate': 0.1,
                         'num_leaves': 19, 'min_data_in_leaf': 9}
         self._space = {
-            # 'num_leaves': 10 + 10 * hp.randint('num_leaves', 37),
+            # 'num_leaves': 10 + 10 * hp.randint('num_leaves', 37)
             # 'min_data_in_leaf': 5 + 2 * hp.randint('min_data_in_leaf', 11),
-            'max_depth': 3 + hp.randint('max_depth', 6),
+            'max_depth': 3 + hp.randint('max_depth', 6)
         }
         self._importance = pd.DataFrame(index=[])
 

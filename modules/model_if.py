@@ -23,7 +23,7 @@ class ModelIF(ABC):
         self._logger = SelfLogger.get_logger(__file__)
 
         # ハイパーパラメータ
-        self.space = None  # 探索空間
+        self._space = None  # 探索空間
         self._params = None  # 学習に使うパラメータ
 
         # 機械学習モデル
@@ -47,7 +47,7 @@ class ModelIF(ABC):
             score = validator_ins.validate(self)
             return score
 
-        best_params: Dict = fmin(eval_func, space=self.space,
+        best_params: Dict = fmin(eval_func, space=self._space,
                                  algo=tpe.suggest, max_evals=200)
         self.params(best_params)
         self._logger.debug(best_params)
