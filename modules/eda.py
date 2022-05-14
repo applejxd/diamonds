@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 from modules.self_logger import SelfLogger
-from util import Util
+import dask.dataframe as dd
 
 logger = SelfLogger.get_logger(__file__)
 
@@ -14,7 +14,7 @@ def plot_carat(table: pd.DataFrame):
 
 
 def eda():
-    table = Util.read_csv("../data/diamonds.csv")
+    table = dd.read_csv("../data/diamonds.csv", dtype={'table': 'float64'}).compute()
     plot_carat(table)
 
 

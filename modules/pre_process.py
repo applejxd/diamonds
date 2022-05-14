@@ -1,8 +1,8 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from modules.self_logger import SelfLogger
-from modules.util import Util
 from typing import List
+import dask.dataframe as dd
 
 
 class PreProcess:
@@ -10,7 +10,7 @@ class PreProcess:
         self._logger = SelfLogger.get_logger(__file__)
 
         # 読み込み
-        table = Util.read_csv(file_path)
+        table = dd.read_csv(file_path, dtype={'table': 'float64'}).compute()
         self._train_x = table.drop(target_col, axis=1)
         self._train_x = self._train_x.drop(self._train_x.columns[[0]], axis=1)
         self._train_y = table[target_col]

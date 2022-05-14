@@ -1,33 +1,42 @@
+import json
 import os
 from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
-from hyperopt import fmin, tpe
+from hyperopt import fmin, tpe, space_eval
 
 from modules import validator
-from modules.util import Util
 from modules.self_logger import SelfLogger
 from typing import Dict
+import pickle
+
+
+def convert_dict_type(my_dict):
+    new_dict = {}
+    for key, value in my_dict.items():
+        if type(value) is np.int64:
+            new_dict[key] = int(value)
+        else:
+            new_dict[key] = value
+    return new_dict
 
 
 class ModelIF(ABC):
-    @property
-    def params(self):
-        return self._params
-
-    @params.setter
-    def params(self, tmp):
-        self._params.update(tmp)
-
     def __init__(self):
         self._logger = SelfLogger.get_logger(__file__)
 
         # ハイパーパラメータ
-        self._space = None  # 探索空間
-        self._params = None  # 学習に使うパラメータ
+        self._params: Dict = {}
+        if os.path.exists(f"../output/{type(self).__name__}.json"):
+            with open(f"../output/{type(self).__name__}.json") as f:
+                self._params = json.load(f)
+
+        # ハイパーパラメータの探索空間
+        # cf. https://hyperopt.github.io/hyperopt/getting-started/search_spaces/#parameter-expressions
+        self._space: Dict = {}
 
         # 機械学習モデル
-        path = f"../result/{__class__.__name__}.pkl"
+        path = f"../output/{type(self).__name__}.pkl"
         self._model = self.load_model() if os.path.exists(path) else None
 
     @abstractmethod
@@ -43,18 +52,24 @@ class ModelIF(ABC):
         validator_ins = validator.CrossValidator(train_x, train_y, 4)
 
         def eval_func(params):
-            self.params = params
+            self._params = convert_dict_type(params)
             score = validator_ins.validate(self)
             return score
 
         best_params: Dict = fmin(eval_func, space=self._space,
                                  algo=tpe.suggest, max_evals=200)
-        self.params(best_params)
+        self._params.update(convert_dict_type(space_eval(self._space, best_params)))
+
+        with open(f"./output/{type(self).__name__}.json", "w") as f:
+            json.dump(self._params, f, indent=2)
+
         self._logger.debug(best_params)
 
     def save_model(self):
-        Util.write_pickle(self._model, __class__.__name__)
+        with open(f"./output/{type(self).__name__}.pkl", "wb") as f:
+            pickle.dump(self._model, f)
 
-    @staticmethod
-    def load_model():
-        return Util.read_pickle(__class__.__name__)
+    def load_model(self):
+        with open(f"./output/{type(self).__name__}.pkl", "rb") as f:
+            result = pickle.load(f)
+        return result

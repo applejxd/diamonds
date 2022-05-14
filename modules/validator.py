@@ -38,7 +38,6 @@ class CrossValidator:
         クロスバリデーション
 
         :param model_ins: 機械学習モデル（ダックタイピング）
-        :param params: ハイパーパラメータ
         :return: 評価値
         """
         scores = []
