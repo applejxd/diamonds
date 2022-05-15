@@ -48,9 +48,7 @@ class ModelIF(ABC):
     def predict(self, te_x: pd.DataFrame) -> np.ndarray:
         pass
 
-    def tuning(self, train_x, train_y):
-        validator_ins = validator.CrossValidator(train_x, train_y, 4)
-
+    def tuning(self, validator_ins):
         def eval_func(params):
             self._params = convert_dict_type(params)
             score = validator_ins.validate(self)

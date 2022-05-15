@@ -48,6 +48,6 @@ class LightGbmModel(ModelIF, ABC):
         pred = self._model.predict(te_x)
         return pred
 
-    def tuning(self, train_x, train_y):
-        super().tuning(train_x, train_y)
+    def tuning(self, validator_ins):
+        super().tuning(validator_ins)
         self._logger.debug(self._importance)

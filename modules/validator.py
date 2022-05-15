@@ -19,11 +19,12 @@ class CrossValidator:
         self._get_fold(train_x, train_y)
 
     def _get_fold(self, train_x: pd.DataFrame, train_y: pd.Series):
-        # KFoldクラスを用いてクロスバリデーションの分割を行う
+        # シードを固定して再現性を確保
         seed = 42
-        kf = KFold(n_splits=self._n_fold, shuffle=True, random_state=seed)
         self._logger.debug(f"Seed of KFold = {seed}")
 
+        # KFoldクラスを用いてクロスバリデーションの分割を行う
+        kf = KFold(n_splits=self._n_fold, shuffle=True, random_state=seed)
         for tr_idx, va_idx in kf.split(train_x):
             tr_x, va_x = train_x.iloc[tr_idx], train_x.iloc[va_idx]
             tr_y, va_y = train_y.iloc[tr_idx], train_y.iloc[va_idx]
@@ -43,9 +44,11 @@ class CrossValidator:
         scores = []
         for tr_x, tr_y, va_x, va_y \
                 in zip(self._tr_x_list, self._tr_y_list, self._va_x_list, self._va_y_list):
-            # 学習の実行、バリデーションデータの予測値の出力、スコアの計算を行う
+            # 学習の実行
             model_ins.fit(tr_x, tr_y, va_x, va_y)
+            # バリデーションデータの予測値の出力
             va_pred = model_ins.predict(va_x)
+            # スコアの計算
             score = mean_absolute_error(va_y, va_pred)
             scores.append(score)
 

@@ -13,7 +13,8 @@ def runner():
     train_y = process_ins.train_y
 
     model = lgb_model.LightGbmModel()
-    model.tuning(train_x, train_y)
+    validator_ins = validator.CrossValidator(train_x, train_y, 4)
+    model.tuning(validator_ins)
 
 
 if __name__ == "__main__":
