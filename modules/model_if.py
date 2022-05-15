@@ -3,22 +3,29 @@ import os
 from abc import ABC, abstractmethod
 import numpy as np
 import pandas as pd
-from hyperopt import fmin, tpe, space_eval
+import hyperopt as hopt
 
 from modules import validator
 from modules.self_logger import SelfLogger
 from typing import Dict
+from datetime import date, datetime
 import pickle
 
 
-def convert_dict_type(my_dict):
-    new_dict = {}
-    for key, value in my_dict.items():
-        if type(value) is np.int64:
-            new_dict[key] = int(value)
-        else:
-            new_dict[key] = value
-    return new_dict
+def json_serial(obj):
+    """
+    オリジナルの json シリアライザ
+    cf. https://www.yoheim.net/blog.php?q=20170703
+
+    :param obj: json の値
+    :return:    シリアライズの結果
+    """
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    if isinstance(obj, np.int64):
+        return obj.item()
+    # 上記以外はサポート対象外.
+    raise TypeError("Type %s not serializable" % type(obj))
 
 
 class ModelIF(ABC):
@@ -27,8 +34,8 @@ class ModelIF(ABC):
 
         # ハイパーパラメータ
         self._params: Dict = {}
-        if os.path.exists(f"../output/{type(self).__name__}.json"):
-            with open(f"../output/{type(self).__name__}.json") as f:
+        if os.path.exists(f"../output/{type(self).__name__}_params.json"):
+            with open(f"../output/{type(self).__name__}_params.json") as f:
                 self._params = json.load(f)
 
         # ハイパーパラメータの探索空間
@@ -36,8 +43,10 @@ class ModelIF(ABC):
         self._space: Dict = {}
 
         # 機械学習モデル
+        self._model = None
         path = f"../output/{type(self).__name__}.pkl"
-        self._model = self.load_model() if os.path.exists(path) else None
+        if os.path.exists(path):
+            self.load_model()
 
     @abstractmethod
     def fit(self, tr_x: pd.DataFrame, tr_y: pd.Series,
@@ -49,18 +58,31 @@ class ModelIF(ABC):
         pass
 
     def tuning(self, validator_ins):
+        """
+        hyperopt を使用したハイパーパラメータチューニング
+        cf. http://hyperopt.github.io/hyperopt/
+
+        :param validator_ins: バリデーションデータを取得できるインスタンス
+        """
         def eval_func(params):
-            self._params = convert_dict_type(params)
+            self._params = params
             score = validator_ins.validate(self)
-            return score
+            return {"loss": score, "status": hopt.STATUS_OK}
 
-        best_params: Dict = fmin(eval_func, space=self._space,
-                                 algo=tpe.suggest, max_evals=200)
-        self._params.update(convert_dict_type(space_eval(self._space, best_params)))
+        trials = hopt.Trials()
+        best_params: Dict = hopt.fmin(eval_func, space=self._space,
+                                      algo=hopt.tpe.suggest, max_evals=100,
+                                      trials=trials)
+        self._params.update(hopt.space_eval(self._space, best_params))
 
-        with open(f"./output/{type(self).__name__}.json", "w") as f:
-            json.dump(self._params, f, indent=2)
+        # 最良のパラメータを保存
+        with open(f"./output/{type(self).__name__}_params.json", "w") as f:
+            json.dump(self._params, f, indent=2, default=json_serial)
+        # 最適化のステータスを保存
+        with open(f"./output/{type(self).__name__}_status.json", "w") as f:
+            json.dump(trials.best_trial, f, indent=2, default=json_serial)
 
+        self._logger.debug(f'best loss = {trials.best_trial["result"]["loss"]}')
         self._logger.debug(best_params)
 
     def save_model(self):
@@ -69,5 +91,4 @@ class ModelIF(ABC):
 
     def load_model(self):
         with open(f"./output/{type(self).__name__}.pkl", "rb") as f:
-            result = pickle.load(f)
-        return result
+            self._model = pickle.load(f)
